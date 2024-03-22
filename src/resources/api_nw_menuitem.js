@@ -4,14 +4,14 @@ var messagingNatives = requireNative('messaging_natives');
 var util = nw.require('util');
 var EventEmitter = nw.require('events').EventEmitter;
 
-var menuItems = { objs : {}, clickEvent: {} };
+var menuItems = { objs: {}, clickEvent: {} };
 menuItems.clickEvent = bindingUtil.createCustomEvent("NWObjectclick", false, false);
-menuItems.clickEvent.addListener(function(id) {
+menuItems.clickEvent.addListener(function (id) {
   var obj = menuItems.objs[id];
   if (!obj)
     return;
-  try{obj.click && obj.click()}catch(e){console.error(e)}
-  try{obj.emit('click')}catch(e){console.error(e)}
+  try { obj.click && obj.click() } catch (e) { console.error(e) }
+  try { obj.emit('click') } catch (e) { console.error(e) }
 });
 
 function MenuItem(option) {
@@ -27,8 +27,8 @@ function MenuItem(option) {
     option.type = 'normal';
 
   if (option.type != 'normal' &&
-      option.type != 'checkbox' &&
-      option.type != 'separator')
+    option.type != 'checkbox' &&
+    option.type != 'separator')
     throw new TypeError('Invalid MenuItem type: ' + option.type);
 
   if (option.type == 'normal' || option.type == 'checkbox') {
@@ -93,7 +93,7 @@ function MenuItem(option) {
 
   if (!option.native)
     nw.Obj.create(id, 'MenuItem', option);
-  messagingNatives.BindToGC(this, function() { nw.Obj.destroy(id); }, -1);
+  messagingNatives.BindToGC(this, function () { nw.Obj.destroy(id); }, -1);
 
 }
 
@@ -103,106 +103,108 @@ MenuItem.prototype._destroy = function () {
 
 util.inherits(MenuItem, EventEmitter);
 
-MenuItem.prototype.handleGetter = function(name) {
+MenuItem.prototype.handleGetter = function (name) {
   return privates(this).option[name];
 };
 
-MenuItem.prototype.handleSetter = function(name, setter, type, value) {
+MenuItem.prototype.handleSetter = function (name, setter, type, value) {
   value = type(value);
   privates(this).option[name] = value;
-  nw.Obj.callObjectMethod(this.id, 'MenuItem', setter, [ value ]);
+  nw.Obj.callObjectMethod(this.id, 'MenuItem', setter, [value]);
 };
 
-MenuItem.prototype.__defineGetter__('type', function() {
+MenuItem.prototype.__defineGetter__('type', function () {
   return this.handleGetter('type');
 });
 
-MenuItem.prototype.__defineSetter__('type', function() {
+MenuItem.prototype.__defineSetter__('type', function () {
   throw new Error("'type' is immutable at runtime");
 });
 
-MenuItem.prototype.__defineGetter__('label', function() {
+MenuItem.prototype.__defineGetter__('label', function () {
   return this.handleGetter('label');
 });
 
-MenuItem.prototype.__defineSetter__('label', function(val) {
+MenuItem.prototype.__defineSetter__('label', function (val) {
   this.handleSetter('label', 'SetLabel', String, val);
 });
 
-MenuItem.prototype.__defineGetter__('icon', function() {
+MenuItem.prototype.__defineGetter__('icon', function () {
   return this.handleGetter('shadowIcon');
 });
 
-MenuItem.prototype.__defineSetter__('icon', function(val) {
+MenuItem.prototype.__defineSetter__('icon', function (val) {
   privates(this).option.shadowIcon = String(val);
   var real_path = val == '' ? '' : nwNative.getAbsolutePath(val); //FIXME
   this.handleSetter('icon', 'SetIcon', String, real_path);
 });
 
-MenuItem.prototype.__defineGetter__('iconIsTemplate', function() {
+MenuItem.prototype.__defineGetter__('iconIsTemplate', function () {
   return this.handleGetter('iconIsTemplate');
 });
 
-MenuItem.prototype.__defineSetter__('iconIsTemplate', function(val) {
+MenuItem.prototype.__defineSetter__('iconIsTemplate', function (val) {
   this.handleSetter('iconIsTemplate', 'SetIconIsTemplate', Boolean, val);
 });
 
-MenuItem.prototype.__defineGetter__('tooltip', function() {
+MenuItem.prototype.__defineGetter__('tooltip', function () {
   return this.handleGetter('tooltip');
 });
 
-MenuItem.prototype.__defineSetter__('tooltip', function(val) {
+MenuItem.prototype.__defineSetter__('tooltip', function (val) {
   this.handleSetter('tooltip', 'SetTooltip', String, val);
 });
 
-MenuItem.prototype.__defineGetter__('key', function() {
+MenuItem.prototype.__defineGetter__('key', function () {
   return this.handleGetter('key');
 });
 
-MenuItem.prototype.__defineSetter__('key', function(val) {
+MenuItem.prototype.__defineSetter__('key', function (val) {
+  // jianjia: this is being executed
+  console.log("jianjia see SetKey in api_nw_menuitem.js");
   this.handleSetter('key', 'SetKey', String, val);
 });
 
-MenuItem.prototype.__defineGetter__('modifiers', function() {
+MenuItem.prototype.__defineGetter__('modifiers', function () {
   return this.handleGetter('modifiers');
 });
 
-MenuItem.prototype.__defineSetter__('modifiers', function(val) {
+MenuItem.prototype.__defineSetter__('modifiers', function (val) {
   this.handleSetter('modifiers', 'SetModifiers', String, val);
 });
 
-MenuItem.prototype.__defineGetter__('checked', function() {
+MenuItem.prototype.__defineGetter__('checked', function () {
   if (this.type != 'checkbox')
     return undefined;
 
   return nw.Obj.callObjectMethodSync(this.id, 'MenuItem', 'GetChecked', []);
 });
 
-MenuItem.prototype.__defineSetter__('checked', function(val) {
+MenuItem.prototype.__defineSetter__('checked', function (val) {
   if (this.type != 'checkbox')
     throw new TypeError("'checked' property is only available for checkbox");
 
   this.handleSetter('checked', 'SetChecked', Boolean, val);
 });
 
-MenuItem.prototype.__defineGetter__('enabled', function() {
+MenuItem.prototype.__defineGetter__('enabled', function () {
   return this.handleGetter('enabled');
 });
 
-MenuItem.prototype.__defineSetter__('enabled', function(val) {
+MenuItem.prototype.__defineSetter__('enabled', function (val) {
   this.handleSetter('enabled', 'SetEnabled', Boolean, val);
 });
 
-MenuItem.prototype.__defineGetter__('submenu', function() {
+MenuItem.prototype.__defineGetter__('submenu', function () {
   return privates(this).submenu;
 });
 
-MenuItem.prototype.__defineSetter__('submenu', function(val) {
+MenuItem.prototype.__defineSetter__('submenu', function (val) {
   privates(this).submenu = val;
-  nw.Obj.callObjectMethod(this.id, 'MenuItem', 'SetSubmenu', [ val.id ]);
+  nw.Obj.callObjectMethod(this.id, 'MenuItem', 'SetSubmenu', [val.id]);
 });
 
-MenuItem.prototype.__defineGetter__('native', function() {
+MenuItem.prototype.__defineGetter__('native', function () {
   return this.handleGetter('native');
 });
 

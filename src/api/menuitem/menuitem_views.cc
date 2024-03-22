@@ -21,19 +21,19 @@
 #include "content/nw/src/api/menuitem/menuitem.h"
 
 #include "base/files/file_path.h"
+#include "base/logging.h"
 #include "base/strings/string_util.h"
 #include "base/strings/utf_string_conversions.h"
 #include "base/threading/thread_restrictions.h"
 #include "base/values.h"
-#include "content/nw/src/api/object_manager.h"
 #include "content/nw/src/api/menu/menu.h"
+#include "content/nw/src/api/object_manager.h"
 #include "content/nw/src/nw_base.h"
 #include "content/nw/src/nw_content.h"
 #include "content/nw/src/nw_package.h"
 #include "ui/base/accelerators/accelerator.h"
+#include "ui/events/event_constants.h"  //for modifier key code
 #include "ui/gfx/image/image_skia_operations.h"
-#include "ui/events/event_constants.h"//for modifier key code
-#include "base/logging.h"
 
 namespace nw {
 
@@ -42,7 +42,7 @@ namespace {
 static const int kIconWidth = 16;
 static const int kIconHeight = 16;
 
-} // namespace
+}  // namespace
 
 void MenuItem::Create(const base::DictionaryValue& option) {
   is_modified_ = false;
@@ -63,37 +63,37 @@ void MenuItem::Create(const base::DictionaryValue& option) {
 
   std::string key;
   std::string modifiers;
-  option.GetString("key",&key);
-  option.GetString("modifiers",&modifiers);
+  option.GetString("key", &key);
+  option.GetString("modifiers", &modifiers);
 
   ui::KeyboardCode keyval = ui::VKEY_UNKNOWN;
 
   keyval = GetKeycodeFromText(key);
-  if (keyval == ui::VKEY_UNKNOWN){
+  if (keyval == ui::VKEY_UNKNOWN) {
     enable_shortcut_ = false;
   } else {
     enable_shortcut_ = true;
-    //only code for ctrl, shift, alt, super and meta modifiers
+    // only code for ctrl, shift, alt, super and meta modifiers
     int modifiers_value = ui::EF_NONE;
     modifiers = base::ToLowerASCII(modifiers);
-    if (modifiers.find("ctrl")!=std::string::npos){
+    if (modifiers.find("ctrl") != std::string::npos) {
       modifiers_value |= ui::EF_CONTROL_DOWN;
     }
-    if (modifiers.find("shift")!=std::string::npos){
-      modifiers_value |= ui::EF_SHIFT_DOWN ;
+    if (modifiers.find("shift") != std::string::npos) {
+      modifiers_value |= ui::EF_SHIFT_DOWN;
     }
-    if (modifiers.find("alt")!=std::string::npos){
+    if (modifiers.find("alt") != std::string::npos) {
       modifiers_value |= ui::EF_ALT_DOWN;
     }
-    if (modifiers.find("super")!=std::string::npos
-     || modifiers.find("cmd")!=std::string::npos
-     || modifiers.find("command")!=std::string::npos){
+    if (modifiers.find("super") != std::string::npos ||
+        modifiers.find("cmd") != std::string::npos ||
+        modifiers.find("command") != std::string::npos) {
       modifiers_value |= ui::EF_COMMAND_DOWN;
     }
-    if (modifiers.find("meta")!=std::string::npos){
+    if (modifiers.find("meta") != std::string::npos) {
       meta_down_flag_ = true;
     }
-    accelerator_ = ui::Accelerator(keyval,modifiers_value);
+    accelerator_ = ui::Accelerator(keyval, modifiers_value);
   }
 
   std::string icon;
@@ -105,8 +105,7 @@ void MenuItem::Create(const base::DictionaryValue& option) {
     SetSubmenu(object_manager()->GetApiObject<Menu>(menu_id));
 }
 
-void MenuItem::Destroy() {
-}
+void MenuItem::Destroy() {}
 
 void MenuItem::OnClick() {
   // Automatically flip checkbox.
@@ -136,17 +135,18 @@ void MenuItem::SetIcon(const std::string& icon) {
 
   gfx::Image originImage;
   nw::Package* package = nw::InitNWPackage();
-  if (nw::GetImage(package, base::FilePath::FromUTF8Unsafe(icon), &originImage)) {
+  if (nw::GetImage(package, base::FilePath::FromUTF8Unsafe(icon),
+                   &originImage)) {
     const gfx::ImageSkia* originImageSkia = originImage.ToImageSkia();
-    gfx::ImageSkia resizedImageSkia = gfx::ImageSkiaOperations::CreateResizedImage(*originImageSkia,
-                                                                                   skia::ImageOperations::RESIZE_GOOD,
-                                                                                   gfx::Size(kIconWidth, kIconHeight));
+    gfx::ImageSkia resizedImageSkia =
+        gfx::ImageSkiaOperations::CreateResizedImage(
+            *originImageSkia, skia::ImageOperations::RESIZE_GOOD,
+            gfx::Size(kIconWidth, kIconHeight));
     icon_ = gfx::Image(resizedImageSkia);
   }
 }
 
-void MenuItem::SetIconIsTemplate(bool isTemplate) {
-}
+void MenuItem::SetIconIsTemplate(bool isTemplate) {}
 
 void MenuItem::SetTooltip(const std::string& tooltip) {
   is_modified_ = true;
@@ -168,34 +168,40 @@ void MenuItem::SetChecked(bool checked) {
 }
 
 void MenuItem::SetSubmenu(Menu* menu) {
-  if (submenu_) submenu_->RemoveKeys();
+  if (submenu_)
+    submenu_->RemoveKeys();
 
   submenu_ = menu;
 }
+
+// jianjia adding SetKey
+void MenuItem::SetKey(const std::string& key) {}
+
+// jianjia adding SetModifiers
+void MenuItem::SetModifiers(const std::string& modifiers) {}
 
 bool MenuItem::GetChecked() {
   return is_checked_;
 }
 
-void MenuItem::UpdateKeys(views::FocusManager *focus_manager){
-  if (focus_manager == NULL){
-    return ;
+void MenuItem::UpdateKeys(views::FocusManager* focus_manager) {
+  if (focus_manager == NULL) {
+    return;
   } else {
     focus_manager_ = focus_manager;
-    if (enable_shortcut_){
+    if (enable_shortcut_) {
       focus_manager->RegisterAccelerator(
-        accelerator_,
-        ui::AcceleratorManager::kHighPriority,
-        this);
+          accelerator_, ui::AcceleratorManager::kHighPriority, this);
     }
-    if (submenu_ != NULL){
+    if (submenu_ != NULL) {
       submenu_->UpdateKeys(focus_manager);
     }
   }
 }
 
 void MenuItem::RemoveKeys() {
-  if (!focus_manager_) return;
+  if (!focus_manager_)
+    return;
 
   if (enable_shortcut_) {
     focus_manager_->UnregisterAccelerator(accelerator_, this);
@@ -224,5 +230,4 @@ bool MenuItem::CanHandleAccelerators() const {
 }
 
 #endif
-}  // namespace nwapi
-
+}  // namespace nw

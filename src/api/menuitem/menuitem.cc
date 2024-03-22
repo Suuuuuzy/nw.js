@@ -1,16 +1,16 @@
 // Copyright (c) 2012 Intel Corp
 // Copyright (c) 2012 The Chromium Authors
-// 
-// Permission is hereby granted, free of charge, to any person obtaining a copy 
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
 //  in the Software without restriction, including without limitation the rights
 //  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell co
 // pies of the Software, and to permit persons to whom the Software is furnished
 //  to do so, subject to the following conditions:
-// 
+//
 // The above copyright notice and this permission notice shall be included in al
 // l copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IM
 // PLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNES
 // S FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS
@@ -23,8 +23,8 @@
 #include "base/logging.h"
 #include "base/strings/string_util.h"
 #include "base/values.h"
-#include "content/nw/src/api/object_manager.h"
 #include "content/nw/src/api/menu/menu.h"
+#include "content/nw/src/api/object_manager.h"
 
 #include <string.h>
 
@@ -32,45 +32,43 @@ namespace nw {
 
 namespace {
 
-typedef std::map<std::string,std::string> KeyMap;
+typedef std::map<std::string, std::string> KeyMap;
 
-static KeyMap keymap = {
-  {"`"    , "Backquote"},
-  {"\\"   , "Backslash"},
-  {"["    , "BracketLeft"},
-  {"]"    , "BracketRight"},
-  {","    , "Comma"},
-  {"="    , "Equal"},
-  {"-"    , "Minus"},
-  {"."    , "Period"},
-  {"'"    , "Quote"},
-  {";"    , "Semicolon"},
-  {"/"    , "Slash"},
-  {"\n"   , "Enter"},
-  {"\t"   , "Tab"},
-  {"UP"   , "ArrowUp"},
-  {"DOWN" , "ArrowDown"},
-  {"LEFT" , "ArrowLeft"},
-  {"RIGHT", "ArrowRight"},
-  {"ESC"  , "Escape"},
-  {"MEDIANEXTTRACK", "MediaTrackNext"},
-  {"MEDIAPREVTRACK", "MediaTrackPrevious"}
-};
+static KeyMap keymap = {{"`", "Backquote"},
+                        {"\\", "Backslash"},
+                        {"[", "BracketLeft"},
+                        {"]", "BracketRight"},
+                        {",", "Comma"},
+                        {"=", "Equal"},
+                        {"-", "Minus"},
+                        {".", "Period"},
+                        {"'", "Quote"},
+                        {";", "Semicolon"},
+                        {"/", "Slash"},
+                        {"\n", "Enter"},
+                        {"\t", "Tab"},
+                        {"UP", "ArrowUp"},
+                        {"DOWN", "ArrowDown"},
+                        {"LEFT", "ArrowLeft"},
+                        {"RIGHT", "ArrowRight"},
+                        {"ESC", "Escape"},
+                        {"MEDIANEXTTRACK", "MediaTrackNext"},
+                        {"MEDIAPREVTRACK", "MediaTrackPrevious"}};
 
-}
+}  // namespace
 
-ui::KeyboardCode GetKeycodeFromText(std::string text){
+ui::KeyboardCode GetKeycodeFromText(std::string text) {
   ui::KeyboardCode retval = ui::VKEY_UNKNOWN;
-  if (text.size() != 0){
+  if (text.size() != 0) {
     std::string upperText = base::ToUpperASCII(text);
     std::string keyName = text;
     bool found = false;
-    if (upperText.size() == 1){
+    if (upperText.size() == 1) {
       char key = upperText[0];
-      if (key>='0' && key<='9'){//handle digital
+      if (key >= '0' && key <= '9') {  // handle digital
         keyName = "Digit" + upperText;
         found = true;
-      } else if (key>='A'&&key<='Z'){//handle alphabet
+      } else if (key >= 'A' && key <= 'Z') {  // handle alphabet
         keyName = "Key" + upperText;
         found = true;
       }
@@ -85,7 +83,8 @@ ui::KeyboardCode GetKeycodeFromText(std::string text){
     }
 
     // build keyboard code
-    ui::DomCode domCode = ui::KeycodeConverter::CodeStringToDomCode(keyName.c_str());
+    ui::DomCode domCode =
+        ui::KeycodeConverter::CodeStringToDomCode(keyName.c_str());
     retval = ui::DomCodeToUsLayoutKeyboardCode(domCode);
   }
   return retval;
@@ -95,7 +94,7 @@ MenuItem::MenuItem(int id,
                    const base::WeakPtr<ObjectManager>& object_manager,
                    const base::DictionaryValue& option,
                    const std::string& extension_id)
-  : Base(id, object_manager, option, extension_id) {
+    : Base(id, object_manager, option, extension_id) {
   Create(option);
 }
 
@@ -134,7 +133,7 @@ void MenuItem::Call(const std::string& method,
     int object_id = 0;
     arguments.GetInteger(0, &object_id);
     SetSubmenu(object_manager()->GetApiObject<Menu>(object_id));
-#if defined(OS_MAC)
+    // #if defined(OS_MAC) jianjia: enable this
   } else if (method == "SetKey") {
     std::string key;
     arguments.GetString(0, &key);
@@ -143,7 +142,7 @@ void MenuItem::Call(const std::string& method,
     std::string mod;
     arguments.GetString(0, &mod);
     SetModifiers(mod);
-#endif
+    // #endif
   } else {
     NOTREACHED() << "Invalid call to MenuItem method:" << method
                  << " arguments:" << arguments;
@@ -161,4 +160,4 @@ void MenuItem::CallSync(const std::string& method,
   }
 }
 
-}  // namespace nwapi
+}  // namespace nw

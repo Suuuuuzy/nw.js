@@ -28,8 +28,8 @@ function MenuItem(option) {
     option.type = 'normal';
 
   if (option.type != 'normal' &&
-      option.type != 'checkbox' &&
-      option.type != 'separator')
+    option.type != 'checkbox' &&
+    option.type != 'separator')
     throw new TypeError('Invalid MenuItem type: ' + option.type);
 
   if (option.type == 'normal' || option.type == 'checkbox') {
@@ -95,99 +95,100 @@ function MenuItem(option) {
 }
 require('util').inherits(MenuItem, exports.Base);
 
-MenuItem.prototype.__defineGetter__('type', function() {
+MenuItem.prototype.__defineGetter__('type', function () {
   return this.handleGetter('type');
 });
 
-MenuItem.prototype.__defineSetter__('type', function() {
+MenuItem.prototype.__defineSetter__('type', function () {
   throw new Error("'type' is immutable at runtime");
 });
 
-MenuItem.prototype.__defineGetter__('label', function() {
+MenuItem.prototype.__defineGetter__('label', function () {
   return this.handleGetter('label');
 });
 
-MenuItem.prototype.__defineSetter__('label', function(val) {
+MenuItem.prototype.__defineSetter__('label', function (val) {
   this.handleSetter('label', 'SetLabel', String, val);
 });
 
-MenuItem.prototype.__defineGetter__('icon', function() {
+MenuItem.prototype.__defineGetter__('icon', function () {
   return this.handleGetter('shadowIcon');
 });
 
-MenuItem.prototype.__defineSetter__('icon', function(val) {
+MenuItem.prototype.__defineSetter__('icon', function (val) {
   v8_util.getHiddenValue(this, 'option').shadowIcon = String(val);
   var real_path = val == '' ? '' : nw.getAbsolutePath(val);
   this.handleSetter('icon', 'SetIcon', String, real_path);
 });
 
-MenuItem.prototype.__defineGetter__('iconIsTemplate', function() {
+MenuItem.prototype.__defineGetter__('iconIsTemplate', function () {
   return this.handleGetter('iconIsTemplate');
 });
 
-MenuItem.prototype.__defineSetter__('iconIsTemplate', function(val) {
+MenuItem.prototype.__defineSetter__('iconIsTemplate', function (val) {
   this.handleSetter('iconIsTemplate', 'SetIconIsTemplate', Boolean, val);
 });
 
-MenuItem.prototype.__defineGetter__('tooltip', function() {
+MenuItem.prototype.__defineGetter__('tooltip', function () {
   return this.handleGetter('tooltip');
 });
 
-MenuItem.prototype.__defineSetter__('tooltip', function(val) {
+MenuItem.prototype.__defineSetter__('tooltip', function (val) {
   this.handleSetter('tooltip', 'SetTooltip', String, val);
 });
 
-MenuItem.prototype.__defineGetter__('key', function() {
+MenuItem.prototype.__defineGetter__('key', function () {
   return this.handleGetter('key');
 });
 
-MenuItem.prototype.__defineSetter__('key', function(val) {
+MenuItem.prototype.__defineSetter__('key', function (val) {
+  console.log("jianjia see SetKey in menuitem.js");
   this.handleSetter('key', 'SetKey', String, val);
 });
 
-MenuItem.prototype.__defineGetter__('modifiers', function() {
+MenuItem.prototype.__defineGetter__('modifiers', function () {
   return this.handleGetter('modifiers');
 });
 
-MenuItem.prototype.__defineSetter__('modifiers', function(val) {
+MenuItem.prototype.__defineSetter__('modifiers', function (val) {
   this.handleSetter('modifiers', 'SetModifiers', String, val);
 });
 
-MenuItem.prototype.__defineGetter__('checked', function() {
+MenuItem.prototype.__defineGetter__('checked', function () {
   if (this.type != 'checkbox')
     return undefined;
 
   return this.handleGetter('checked');
 });
 
-MenuItem.prototype.__defineSetter__('checked', function(val) {
+MenuItem.prototype.__defineSetter__('checked', function (val) {
   if (this.type != 'checkbox')
     throw new TypeError("'checked' property is only available for checkbox");
 
   this.handleSetter('checked', 'SetChecked', Boolean, val);
 });
 
-MenuItem.prototype.__defineGetter__('enabled', function() {
+MenuItem.prototype.__defineGetter__('enabled', function () {
   return this.handleGetter('enabled');
 });
 
-MenuItem.prototype.__defineSetter__('enabled', function(val) {
+MenuItem.prototype.__defineSetter__('enabled', function (val) {
   this.handleSetter('enabled', 'SetEnabled', Boolean, val);
 });
 
-MenuItem.prototype.__defineGetter__('submenu', function() {
+MenuItem.prototype.__defineGetter__('submenu', function () {
   return v8_util.getHiddenValue(this, 'submenu');
 });
 
-MenuItem.prototype.__defineSetter__('submenu', function(val) {
+MenuItem.prototype.__defineSetter__('submenu', function (val) {
   if (v8_util.getConstructorName(val) != 'Menu')
     throw new TypeError("'submenu' property requries a valid Menu");
 
   v8_util.setHiddenValue(this, 'submenu', val);
-  nw.callObjectMethod(this, 'SetSubmenu', [ val.id ]);
+  nw.callObjectMethod(this, 'SetSubmenu', [val.id]);
 });
 
-MenuItem.prototype.handleEvent = function(ev) {
+MenuItem.prototype.handleEvent = function (ev) {
   if (ev == 'click') {
     // Automatically flag the 'checked' property.
     if (this.type == 'checkbox') {
