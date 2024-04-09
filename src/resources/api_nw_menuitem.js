@@ -162,6 +162,7 @@ MenuItem.prototype.__defineGetter__('key', function () {
 MenuItem.prototype.__defineSetter__('key', function (val) {
   // jianjia: this is being executed
   console.log("jianjia see SetKey in api_nw_menuitem.js");
+  console.log(String, val);
   this.handleSetter('key', 'SetKey', String, val);
 });
 
